@@ -122,15 +122,19 @@ char buffer[10];
 }
 /////////////////////////////////////////////
 void quit() {
-  // Write your code here
+  
+  reboot():
 }
 /////////////////////////////////////////////
 void exit() {
-  // Write your code here
+  
+  reboot();
 }
 /////////////////////////////////////////////
 void reboot() {
-  // Write your code here
+   _asm {
+        int 19h 
+    }
 }
 /////////////////////////////////////////////
 int cmpe(char *src, char *dst) {
