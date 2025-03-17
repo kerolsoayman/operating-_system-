@@ -9,9 +9,6 @@ int main() {
 int sockfd;
 struct sockaddr_in server_addr;
 char buffer[BUFFER_SIZE] = {0};
-char *message;
-char hold='\0';
-int i=0;
 // Create a socket
 if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 perror("socket creation failed");
@@ -36,28 +33,31 @@ exit(EXIT_FAILURE);
 printf("connected to server\n");
 // Send a message to the server
 //scanf("%c",&hold);
-while(hold!='=')
-{
-
-scanf(" %c",&hold);
-if(hold=='=')
-    break;
-message[i++]=hold;
+while (1) {
+        // Get user input
+        printf("Client: ");
+        scanf("%s",buffer);
 
 
+        // Send message to the server
+        send(sockfd, buffer, strlen(buffer), 0);
 
-}
-message[i]='\0';
-send(sockfd, message, strlen(message), 0);
-printf("Message sent to server: %s\n", message);
-// Read the response from the server
-int bytes_read = read(sockfd, buffer, sizeof(buffer) - 1);
-if (bytes_read < 0) {
-perror("read failed");
-} else {
-buffer[bytes_read] = '\0'; // Null-terminate the buffer to make it a valid string
-printf("Received from server: %s\n", buffer);
-}
+        // Check if user wants to quit
+        if (strcmp(buffer, "quit") == 0) {
+            printf("Closing connection\n");
+            break;
+        }
+
+        // Receive echoed message from the server
+        int bytes_read = read(sockfd, buffer, BUFFER_SIZE - 1);
+        if (bytes_read <= 0) {
+            printf("no data has been sent\n");
+            break;
+        }
+
+        buffer[bytes_read] = '\0'; // Null-terminate received string
+        printf("Server: %s\n", buffer);
+    }
 // Close the socket
 close(sockfd);
 return 0;

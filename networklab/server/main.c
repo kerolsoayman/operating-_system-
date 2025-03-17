@@ -34,21 +34,39 @@ exit(EXIT_FAILURE);
 }
 printf("Server listening on port %d\n", PORT);
 while (1) {
-// Accept a new connection
-if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
-perror("accept failed");
-close(server_fd);
-exit(EXIT_FAILURE);
-}
-// Read data from client
-read(new_socket, buffer, BUFFER_SIZE);
-printf("Received from client: %s\n", buffer);
-/
-send(new_socket, buffer, BUFFER_SIZE, 0);
-printf("Response sent to client\n");
-// Close the connection
-close(new_socket);
-}
+        // Accept a new connection
+        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+            perror("Accept failed");
+            close(server_fd);
+            exit(EXIT_FAILURE);
+        }
+
+        printf("Client connected\n");
+
+        while (1) {
+            memset(buffer, 0, BUFFER_SIZE); // Clear buffer
+            int bytes_read = read(new_socket, buffer, BUFFER_SIZE - 1);
+
+            if (bytes_read <= 0) {
+                printf("Buffer is empty");
+                break;  // Exit loop if read fails or client disconnects
+            }
+
+            buffer[bytes_read] = '\0'; // Null-terminate received string
+            printf("Received: %s\n", buffer);
+
+            // Check if client sent "quit"
+            if (strcmp(buffer, "quit") == 0) {
+                printf("Client requested to close connection.\n");
+                break;  // Break out of the loop and close connection
+            }
+
+            // Echo message back to client
+            send(new_socket, buffer, bytes_read, 0);
+        }
+
+        close(new_socket); // Close client connection
+    }
 // Close the server socket
 close(server_fd);
 return 0;
