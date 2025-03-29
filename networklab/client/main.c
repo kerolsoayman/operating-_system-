@@ -11,7 +11,7 @@ struct sockaddr_in server_addr;
 char buffer[BUFFER_SIZE] = {0};
 // Create a socket
 if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-perror("socket creation failed");
+perror("socket creation failed ");
 exit(EXIT_FAILURE);
 }
 // Set up the server address structure

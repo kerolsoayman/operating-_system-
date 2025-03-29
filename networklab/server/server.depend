@@ -6,3 +6,11 @@
 	<unistd.h>
 	<arpa/inet.h>
 
+1743275410 source:/media/sf_sharedfol/server/main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<unistd.h>
+	<arpa/inet.h>
+	<pthread.h>
+

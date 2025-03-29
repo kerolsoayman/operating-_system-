@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include<pthread.h>
 #define PORT 8080
 #define BUFFER_SIZE 1024
 int main() {
@@ -33,6 +34,9 @@ close(server_fd);
 exit(EXIT_FAILURE);
 }
 printf("Server listening on port %d\n", PORT);
+
+int child=0;
+int cn;
 while (1) {
         // Accept a new connection
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
@@ -40,8 +44,13 @@ while (1) {
             close(server_fd);
             exit(EXIT_FAILURE);
         }
+        child++;
+            if((fork())==0)
+                {
+                cn=child;
 
-        printf("Client connected\n");
+
+        printf("Client %d connected \n",cn);
 
         while (1) {
             memset(buffer, 0, BUFFER_SIZE); // Clear buffer
@@ -53,11 +62,11 @@ while (1) {
             }
 
             buffer[bytes_read] = '\0'; // Null-terminate received string
-            printf("Received: %s\n", buffer);
+            printf("client %d sent: %s \n", cn,buffer);
 
             // Check if client sent "quit"
             if (strcmp(buffer, "quit") == 0) {
-                printf("Client requested to close connection.\n");
+                printf("Client %d requested to close connection.\n",cn);
                 break;  // Break out of the loop and close connection
             }
 
@@ -65,8 +74,12 @@ while (1) {
             send(new_socket, buffer, bytes_read, 0);
         }
 
-        close(new_socket); // Close client connection
+
+        close(new_socket);
+        exit(0);
+        } // Close client connection
     }
+
 // Close the server socket
 close(server_fd);
 return 0;
