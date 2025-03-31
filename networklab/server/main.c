@@ -3,9 +3,39 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include<signal.h>
 #include<pthread.h>
 #define PORT 8080
 #define BUFFER_SIZE 1024
+typedef    void    Sigfunc(int);
+Sigfunc *signal (int signo, Sigfunc *func)
+  {
+      struct sigaction act, oact;
+      act.sa_handler = func;
+      sigemptyset (&act.sa_mask);
+      act.sa_flags = 0;
+      if (signo == SIGALRM) {
+  #ifdef  SA_INTERRUPT
+          act.sa_flags |= SA_INTERRUPT;     /* SunOS 4.x */
+  #endif
+      } else {
+  #ifdef  SA_RESTART
+          act.sa_flags |= SA_RESTART; /* SVR4, 4.4BSD */
+  #endif
+      }
+      if (sigaction (signo, &act, &oact) < 0)
+          return (SIG_ERR);
+      return (oact.sa_handler);
+  }
+  void sig_chld(int signo)
+  {
+      pid_t   pid;
+      int     stat;
+      while((pid = waitpid (-1, &stat, WNOHANG))>0)
+      printf("child %d termenatied" ,pid);
+      return;
+  }
+
 int main() {
 int server_fd, new_socket;
 struct sockaddr_in address;
@@ -37,6 +67,8 @@ printf("Server listening on port %d\n", PORT);
 
 int child=0;
 int cn;
+signal(SIGCHLD,sig_chld);
+
 while (1) {
         // Accept a new connection
         if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
@@ -47,6 +79,7 @@ while (1) {
         child++;
             if((fork())==0)
                 {
+                close(server_fd);
                 cn=child;
 
 
