@@ -64,8 +64,7 @@ int main()
 
         if (FD_ISSET(fileno(stdin), &rset))
         {
-            if (scanf("%1023s", buffer) == EOF)
-                break;
+            
 
             if (strcmp(buffer, "quit") == 0)
             {
